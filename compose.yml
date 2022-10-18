@@ -1,0 +1,35 @@
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server
+    restart: always
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: "1Secure*Password1"
+
+  sa-20:
+    depends_on:
+      - mssql
+    build:
+      context: .
+      args:
+        SQLALCHEMY_VERSION: "2.0.0b1"
+    volumes:
+      - ${PWD}:/home
+    working_dir: /home
+    environment:
+      DB_URI: mssql+pyodbc://testuser:Test*password1@mssql/testdb?driver=ODBC+Driver+17+for+SQL+Server
+    command: "bash -c './init.sh && python test.py'"
+
+  sa-14:
+    depends_on:
+      - mssql
+    build:
+      context: .
+      args:
+        SQLALCHEMY_VERSION: "1.4.42"
+    volumes:
+      - ${PWD}:/home
+    working_dir: /home
+    environment:
+      DB_URI: mssql+pyodbc://testuser:Test*password1@mssql/testdb?driver=ODBC+Driver+17+for+SQL+Server
+    command: "bash -c './init.sh && python test.py'"
